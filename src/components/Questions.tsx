@@ -9,7 +9,8 @@ import {
 import Colapisble from "./Colapisble";
 import { calculateCompanies, calculateTags, updatedData } from "@/data";
 import {  useEffect, useRef, useState } from "react";
-import { Check, Link2Icon } from "lucide-react";
+import { Check, Link2Icon, Lock } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 
 function Questions() {
@@ -26,7 +27,7 @@ function Questions() {
   >([]);
   const [showTags, setShowTags] = useState(false);
   const pageChangeRef = useRef<HTMLDivElement>(null)
-
+  const [status, setStatus] = useState(new Array(174).fill(false));
   const [difficulty, setDifficulty] = useState("");
   const [tags, setTags] = useState("");
   const [companies, setCompany] = useState("");
@@ -41,14 +42,44 @@ function Questions() {
     console.log(filteredData);
   }, [tags, difficulty, companies]);
 
+
+
   useEffect(()=>{
     setPageSize(filteredData.length)
+    setCurrentPage(1)
   },[filteredData])
+
+useEffect(()=>{
+
+  const statusString = localStorage.getItem("Status");
+  
+  if(statusString){
+    const newLista:[] = JSON.parse(statusString)
+    setStatus(newLista)
+  }
+
+
+},[])
+  const check = (id:number)=>{
+
+     const newList = [...status]
+     newList[id]= !status[id]
+
+     setStatus(newList)
+
+     const statusString = JSON.stringify(newList);
+     localStorage.setItem('Status',statusString)
+
+
+  }
 
   const tagMenu: String[] = calculateTags();
 
   const companyMenu: string[] = calculateCompanies();
   const numbers = Array.from({ length: Math.ceil(pageSize / 15) }, (_: any, i: number) => i + 1);
+
+
+  
 
   return (
     <div className="">
@@ -150,12 +181,17 @@ function Questions() {
           onClick={() => setShowTags(!showTags)}
           className="flex items-center -p-1 border-[1px] z-10 border-white px-3"
         >
-          Show topic tags
+        {showTags&&(
+        <div className="flex gap-3">  Show topic tags <div className="w-[15px] mx-auto my-auto h-[15px] bg-green-600 rounded-full"></div></div>
+        )||(
+          
+          <div className="flex gap-3">  Show topic tags <div className="w-[15px] mx-auto my-auto h-[15px] bg-white rounded-full"></div></div>
+        )}
         </button>
       </div>
 
       <div className="flex pt-3 gap-3 flex-col">
-        <div  className="  gap-12 grid grid-cols-9 ">
+        <div  className=" opacity-60  gap-12 grid grid-cols-9 ">
           <div>Status</div>
           <div className=" col-span-4">Questions</div>
           <div className="col-span-2 ">Difficulty</div>
@@ -169,12 +205,18 @@ function Questions() {
                 key={index}
                 className="  gap-6 py-1 grid grid-cols-9 border-b-2 border-gray-800 "
               >
-                <div className="">
-                  <div className="bg-[#282828 ] w-[30px] flex items-center justify-center">
+                <div className="flex justify-center">
+                {status[items.id]&&(
+                    <button onClick={()=>check(items.id)} className=" bg-[#282828] w-[30px] h-[30px] flex items-center justify-center">
                     <Check color="#00bd1f" />
-                  </div>{" "}
+                  </button>
+                )||(
+                  <button onClick={()=>check(items.id)} className=" bg-[#282828] w-[30px] h-[30px] flex items-center justify-center">
+                  
+                </button>
+                )}
                 </div>
-                <div className=" col-span-4">
+                <div className=" grid grid-cols-1 grid-rows-2 col-span-4">
                   <a
                     href={
                       "https://leetcode.com/problems/" +
@@ -184,9 +226,32 @@ function Questions() {
                     className="text-blue-400 flex items-center gap-2"
                     target="_blank"
                   >
+                    {items.premium&&(
+                      <div><Lock className="w-[15px]"/></div>
+                     )}
                     {" "}
                     {items.title} <Link2Icon className="h-[20px]" />
                   </a>
+                {
+                  showTags&&(
+                    <div className="flex  gap-3">
+                    {items.pattern.map((patterns, ind) => {
+                    return ind < 2 && <div className="bg-[#282828] px-2 rounded-xl">{patterns}</div>;
+                     })}
+                    {items.pattern.length > 2 && (
+                    <button
+                      onClick={() => setShowCompany(!showCompany)}
+                      className="bg-[#282828] text-sm items-center flex justify-center px-2 rounded-xl"
+                    >
+                      {items.pattern.length - 2}+
+                    </button>
+                  )}
+
+                
+                 
+                </div>
+                  )
+                }
                 </div>
 
                 <div className="col-span-2 pl-2">
@@ -201,22 +266,51 @@ function Questions() {
                   )}
                 </div>
 
-                <div className="flex  gap-3">
+               <div className="grid grid-rows-2 col-span-2">
+              
+               <div className=" flex relative gap-2">
                   {items.companies.map((company, ind) => {
                     return ind < 2 && <div>{company.name}</div>;
                   })}
                   {items.companies.length > 2 && (
-                    <button
-                      onClick={() => setShowCompany(!showCompany)}
-                      className="bg-[#282828] text-sm items-center flex justify-center px-2 rounded-xl"
-                    >
-                      {items.companies.length - 2}+
-                    </button>
+                   <Collapsible>
+                   <CollapsibleTrigger className="bg-[#282828] flex items-center justify-center rounded-xl  px-2">{items.companies.length-2}+</CollapsibleTrigger>
+                   {  index <= (currentPage*15-4) &&   (<CollapsibleContent className="absolute  rounded-xl w-[300px] overflow-hidden z-[1] top-0 left-0 bg-[#282828]">
+                   <CollapsibleTrigger className="absolute  z-2 w-full h-full"></CollapsibleTrigger>
+                   <div className="flex gap-3 p-2  flex-wrap w-[300px]">
+                   {
+                    items.companies.map((company, ind)=>(
+                      <div key={ind} className=" gap-2 flex">
+                        
+                        <span className=" bg-[#1A1A1A] py-[1px] px-3 rounded-xl">{company.name}:{' '}{' '} {company.frequency}</span>
+                        
+                        </div>
+                    ))
+                   }</div></CollapsibleContent>
+                  )|| (<CollapsibleContent className="absolute  rounded-xl w-[300px] overflow-hidden z-[1] bottom-0 left-0 bg-[#282828]">
+                    <CollapsibleTrigger className="absolute  z-2 w-full h-full"></CollapsibleTrigger>
+                    <div className="flex gap-3 p-2  flex-wrap w-[300px]">
+                    {
+                     items.companies.map((company, ind)=>(
+                       <div key={ind} className=" gap-2 flex">
+                         
+                         <span className=" bg-[#1A1A1A] py-[1px] px-3 rounded-xl">{company.name}:{' '}{' '} {company.frequency}</span>
+                         
+                         </div>
+                     ))
+                    }</div></CollapsibleContent>
+                   )
+                  
+                  
+                  
+                  }
+                   </Collapsible>
                   )}
 
                 
-                 
-                </div>
+                 </div>
+           
+               </div>
                
               </div>
             )

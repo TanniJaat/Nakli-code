@@ -14,15 +14,15 @@ interface cry{ data: { id: number; title: string; slug: string; pattern: string[
 
 function Colapisble(props:cry) {
     const [collapse, setCollapse] = useState(false);
-
+  
     const frequency = calculateTagFrequency(props.data)
 
   
   return (
-    <div className="">
+    <div className="text-sm">
       <Collapsible>
         <div className="flex justify-between">
-          <div className="flex flex-wrap gap-10 p-10">
+          <div className="flex flex-wrap gap-10 py-6 px-10">
           {Object.entries(frequency).map(([items,frequency],index)=>{
            return(
             index<=4&&(
@@ -40,8 +40,8 @@ function Colapisble(props:cry) {
           )}
         </div>
         <CollapsibleContent>
-          <div className="flex justify-between">
-            <div className="flex flex-wrap gap-10 pb-10 px-10">
+          <div className="flex justify-between pb-2 ">
+            <div className="flex flex-wrap gap-10  py-2 px-10">
             {Object.entries(frequency).map(([items,frequency],index)=>{
            return(
             index>4&&(

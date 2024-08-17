@@ -18,7 +18,7 @@ function Navbar() {
         <input type="text" className=" outline-none py-[3px] px-4  rounded-xl bg-[#313131]  w-full" placeholder="Search anything..." />
       </div>
       <div className="flex items-end justify-end">
-     <a href="" className="">
+     <a href="https://github.com/TanniJaat/Nakli-code" target="_blank" className="">
      <div className="border-2 p-1 border-white rounded-full  h-[40px] w-[40px] flex items-center justify-center">
        
        <Github color="#ffffff" className="h-[25px] w-[25px]" />
