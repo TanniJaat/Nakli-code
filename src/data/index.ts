@@ -1,28 +1,26 @@
 import jsonData from "@/data/questions.json";
 
+interface Company {
+  name: string;
+  slug: string;
+  frequency: number;
+}
 
-export function updatedData(selecteddifficulty:string, selectedTag:string,selectedCompany:string){
-  let data = jsonData;
- 
-  if( selecteddifficulty && selecteddifficulty  !== 'Difficulty'){
- 
-    const newData =  difficulty(selecteddifficulty,data)
-    data = newData
-  }
- if (selectedTag && selectedTag!=="Tags" ) {
-    const newData = tags(selectedTag, data);
-    data = newData;
-  }
-  
-
-  if(selectedCompany && selectedCompany!=="companies"){
-    const newData= company(selectedCompany, data)
-    data = newData
-  }
-
-
-  return data
-  
+interface Question {
+  id: number;
+  title: string;
+  slug: string;
+  pattern: string[];
+  difficulty: string;
+  premium: boolean;
+  companies: Company[];
+}
+export function updatedData(selectedDifficulty: string, selectedTag: string, selectedCompany: string): Question[] {
+  return jsonData.filter(question => {
+    return (!selectedDifficulty || selectedDifficulty === 'Difficulty' || question.difficulty === selectedDifficulty) &&
+           (!selectedTag || selectedTag === 'Tags' || question.pattern.includes(selectedTag)) &&
+           (!selectedCompany || selectedCompany === 'companies' || question.companies.some(comp => comp.name === selectedCompany));
+  });
 }
 
 export const calculateTags = () => {
@@ -91,6 +89,19 @@ export function company(company:string, data:any) {
 }
 
 
+export function countSolved (data:any){
+  let easy = 0;
+  let medium = 0;
+  let hard = 0;
+
+  data.map((items: { difficulty: string; })=>{
+    if(items.difficulty=="Easy") easy++;
+    if(items.difficulty=="Medium") medium++;
+    if(items.difficulty=="Hard") hard++;
+  })
+  return [easy, medium,hard]
+  
+}
 
 
 
