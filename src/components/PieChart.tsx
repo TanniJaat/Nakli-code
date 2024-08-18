@@ -104,7 +104,7 @@ const chartConfig = {
               className="stroke-transparent stroke-2"
             />
             <RadialBar
-              dataKey="hard"
+              dataKey="Hard"
               stackId="a"
               cornerRadius={5}
               fill="var(--color-Hard)"
